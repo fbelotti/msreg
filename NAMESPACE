@@ -1,0 +1,3 @@
+useDynLib(msreg, .registration=TRUE)
+import(methods, Rcpp)
+exportPattern("^[[:alpha:]]+")
