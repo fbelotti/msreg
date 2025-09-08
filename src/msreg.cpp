@@ -2,7 +2,7 @@
 #include <Rcpp.h>
 #include <iostream>
 #include <cstdlib>  // For std::exit()
-#include <cmath>
+
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -39,6 +39,7 @@ public:
   
   void get_data();
   void compute();
+  Rcpp::List post_results();
   void get_W();
   void match_X2();
   void get_metric(arma::mat& A);
@@ -54,6 +55,10 @@ public:
   void list_class();
   
 private:
+  
+  //arma::vec _y1;
+  //arma::mat _X1, _X2, _Z1, _Z2, _W, _X2_md;
+  
   // Private Utility Functions
   void msols(const arma::vec& y1, const arma::mat& W, arma::vec& b, arma::mat& V);
   void _msreg_tr_norm(const arma::mat& A, const arma::rowvec& z, arma::vec& res);
@@ -83,12 +88,13 @@ RCPP_MODULE(msreg) {
   .method("load_data", &MSREG::load_data, "Load data from data frame objects")
   .method("get_data", &MSREG::get_data)
   .method("compute", &MSREG::compute)
-  .method("get_W", &MSREG::get_W)
-  .method("match_X2", &MSREG::match_X2)
-  .method("get_metric", &MSREG::get_metric)
-  .method("onestep", &MSREG::onestep)
-  .method("twostep", &MSREG::twostep)
-  .method("adjust_y", &MSREG::adjust_y)
+  .method("post_results", &MSREG::post_results)
+  //.method("get_W", &MSREG::get_W)
+  //.method("match_X2", &MSREG::match_X2)
+  //.method("get_metric", &MSREG::get_metric)
+  //.method("onestep", &MSREG::onestep)
+  //.method("twostep", &MSREG::twostep)
+  //.method("adjust_y", &MSREG::adjust_y)
   .method("list_class", &MSREG::list_class);
 }
 
@@ -105,10 +111,6 @@ void MSREG::list_class() {
   Rcpp::Rcout << "Order: " << _order << std::endl;
 }
 
-
-#include <RcppArmadillo.h>
-#include <string>
-#include <vector>
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -190,11 +192,36 @@ void MSREG::compute() {
     throw std::invalid_argument("Unknown method: " + _estimator);
   }
   
-  // Post the result (call another private member function)
-  //TODO:
-  // post_result();
+ 
 }
 
+
+// [[Rcpp::export]]
+Rcpp::List MSREG::post_results() {
+
+  if (_estimator == "ols") {
+    
+    // Return as named list with class
+    Rcpp::List out = Rcpp::List::create(
+      Rcpp::Named("coefficients") = _b,
+      Rcpp::Named("VCV")       = _V
+    );
+    
+    out.attr("class") = "msreg";
+    return out;
+    
+  } else if (_estimator == "onestep") {
+    onestep();
+  } else if (_estimator == "twostep") {
+    twostep();
+  }
+  
+  Rcpp::stop("Invalid estimator: " + _estimator);
+  
+}
+
+
+  
 void MSREG::get_data() {
 
   // Step 2: Match X2
@@ -213,7 +240,7 @@ void MSREG::get_W() {
     _W = arma::join_horiz(_W, arma::ones<arma::mat>(_n, 1));
     _p += 1;
   }
-  Rcpp::Rcout << "_p in get_W(): " << _p << std::endl;
+  //Rcpp::Rcout << "_p in get_W(): " << _p << std::endl;
 }
 
 
@@ -392,11 +419,11 @@ void MSREG::rmcoll(arma::mat& Z, arma::uvec& p) {
 void MSREG::msols(const arma::vec& y1, const arma::mat& W, arma::vec& b, arma::mat& V) {
   arma::mat invWpW = arma::inv_sympd(W.t() * W);
   b = invWpW * (W.t() * y1);
-  b.print("beta_ols");
+  //b.print("beta_ols");
   arma::vec eps = y1 - W * b;
   arma::mat uhat = W.each_col() % eps;
   V = invWpW * (uhat.t() * uhat) * invWpW;
-  V.print("VCV_ols");
+  //V.print("VCV_ols");
 }
 
 void MSREG::_msreg_msii(

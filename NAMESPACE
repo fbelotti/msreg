@@ -1,3 +1,5 @@
 useDynLib(msreg, .registration=TRUE)
 import(methods, Rcpp)
 exportPattern("^[[:alpha:]]+")
+S3method(print, msreg)
+S3method(summary, msreg)

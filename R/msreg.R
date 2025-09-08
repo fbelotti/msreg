@@ -1,10 +1,42 @@
 
+
+print.msreg <- function(x, ...) {
+  cat("Call:\n<MSREG Model>\n\n")
+  cat("Coefficients:\n")
+  print(x$coefficients)
+  invisible(x)
+}
+
+summary.msreg <- function(object, ...) {
+  coefs <- object$coefficients
+  V <- object$VCV
+  se <- sqrt(diag(V))
+  tval <- coefs / se
+  # TODO: pass the right DF
+  df <- Inf  # or use actual df if known
+  pval <- 2 * pt(-abs(tval), df)
+  
+  result <- cbind(
+    Estimate = coefs,
+    `Std. Error` = se,
+    `t value` = tval,
+    `Pr(>|t|)` = pval
+  )
+  
+  cat("Summary of MSREG Model:\n\n")
+  printCoefmat(result, P.values = TRUE, has.Pvalue = TRUE)
+  invisible(result)
+}
+
+
+
 msreg <- function(formula, df_cohort, df_survey,
                   estimator = c("ols", "onestep", "twostep"),
                   vcov = c("vi", "vii", "viii"),
                   metric = c("mahalanobis", "euclidean"),
                   nneighbor = 1,
-                  order = 1) {
+                  order = 1, 
+                  list = FALSE) {
   
   # parse data
   # Ensure the cohort and survey data are a data frame
@@ -67,14 +99,12 @@ msreg <- function(formula, df_cohort, df_survey,
   e_df_cohort <- e_df_cohort[, c(yvar, xvars, zvars)]
   e_df_survey <- e_df_survey[, c(missing_var, zvars)]
   
-  
-  
-  # Just check the parsed options 
+  # Just check the parsed options in R
   # print(yvar)
-  print(xvars)
+  # print(xvars)
   # print(has_constant)
   # print(zvars)
-  print(missing_var)
+  # print(missing_var)
   # print(estimator)
   # print(vcov)
   # print(metric)
@@ -85,17 +115,19 @@ msreg <- function(formula, df_cohort, df_survey,
   msreg_obj <- new(MSREG, has_constant, estimator, vcov, metric, nneighbor, order)
   
   # Check that options are correctly passed to the class
-  msreg_obj$list_class()
+  if (!missing(list) && isTRUE(list)) { 
+    msreg_obj$list_class()
+  }
   
- 
   # load_data
   msreg_obj$load_data(df1 = e_df_cohort, df2 = e_df_survey, st_y = yvar,
                            st_x1 = c(xvars), st_x2 = missing_var,
                            st_z = c(zvars))
-  # Run estimation
-  set.seed(1234467)
-  msreg_obj$compute() 
   
+  # Run estimation
+  set.seed(1234467879)
+  msreg_obj$compute() 
+  msreg_obj$post_results() 
   
 }
 

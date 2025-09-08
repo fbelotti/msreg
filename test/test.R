@@ -6,12 +6,10 @@
 rm(list = ls())
 
 # Set working directory to your package folder
-wd = "/Users/federico/Dropbox/Projects/LONGITOOLS/microsim/data"
+wd = "/Users/federico/Dropbox/Projects/LONGITOOLS/microsim/data/msreg"
 setwd(wd)
 
-
-
-#library(Rcpp)
+library(Rcpp)
 library(dplyr)
 library(foreign)
 library(msreg)
@@ -19,8 +17,8 @@ library(msreg)
 #sourceCpp("/Users/federico/Dropbox/Projects/LONGITOOLS/microsim/data/msreg/src/msreg.cpp")
 #source("/Users/federico/Dropbox/Projects/LONGITOOLS/microsim/data/msreg/R/msreg.R")
 
-cohort_data <- read.dta(file = paste0(wd, "/dta/nfbc_annual_msreg_ge_bw.dta"), convert.factors = FALSE)
-eusilc_6_data <- read.dta(file = paste0(wd, "/dta/msreg_eusilc_6.dta"), convert.factors = FALSE)
+cohort_data <- read.dta(file = paste0(wd, "/dta/cohort_data_test.dta"), convert.factors = FALSE)
+eusilc_6_data <- read.dta(file = paste0(wd, "/dta/survey_data_test.dta"), convert.factors = FALSE)
 eusilc_6_data <- eusilc_6_data[c("job_dad_2", "job_mom_2", "edu_mom", "ln_equi_hh_income")]
 
 # Define the cohort and survey data.frame with the appropriate variables
@@ -32,8 +30,13 @@ eusilc_6_data <- eusilc_6_data[c("job_dad_2", "job_mom_2", "edu_mom", "ln_equi_h
 # Define the model
 model <- gesta ~ age_mom + female | job_dad_2 + job_mom_2 + edu_mom | ln_equi_hh_income
 
-msreg(model, cohort_data, eusilc_6_data, est = "ols", vcov = "vi", nneighbor = 3, order = 2 )
- 
- 
+fit <- msreg(model, cohort_data, eusilc_6_data, est = "ols", vcov = "vi", nneighbor = 3, order = 2 )
+summary(fit)
+
+# Try out the list option 
+fit <- msreg(model, cohort_data, eusilc_6_data, est = "ols", vcov = "vi", nneighbor = 3, order = 2, list = TRUE)
+summary(fit)
+
+
 
 

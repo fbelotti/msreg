@@ -14,8 +14,8 @@ setwd(wd)
 
 # Define the package directory
 pkg_dir <- "/Users/federico/Dropbox/Projects/LONGITOOLS/microsim/data/msreg"
-# Define the package tarball (assuming version 0.1)
-pkg_tarball <- "msreg_1.0.tar.gz"
+# Define the package tarball (version 1.0.1)
+pkg_tarball <- "msreg_1.0.1.tar.gz"
 
 # Unisntall the previous version 
 remove.packages("msreg")
