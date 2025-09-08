@@ -1,7 +1,7 @@
 
 
+$(info ===> Makevars is being used)
+
 PKG_CPPFLAGS += -I../inst/include
 PKG_LIBS += $(LAPACK_LIBS) $(BLAS_LIBS)
 
-$(info ===> Makevars is being used)
-$(info PKG_LIBS: $(PKG_LIBS))
