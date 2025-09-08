@@ -61,7 +61,7 @@ Maintainer: Federico Belotti <ambda76@econometrics.it>
 }
 \examples{
   \dontrun{
-     \dontrun{fit <- msreg(model, cohort_data, svy_data, est = "ols", vcov = "vi", nneighbor = 3, order = 2 )
-summary(fit)}   
-  }
+  fit <- msreg(model, cohort_data, svy_data, est = "ols", vcov = "vi", nneighbor = 3, order = 2 )
+  summary(fit)
+  }   
 }
