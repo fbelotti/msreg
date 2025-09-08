@@ -1,7 +1,7 @@
 Package: msreg
 Type: Package
 Title: Consistent estimation of linear regression models using matched data
-Version: 1.0.1
+Version: 1.0.2
 Date: 2025-09-8
 Author: Federico Belotti
 Maintainer: Federico Belotti <federico.belotti@uniroma2.it>
